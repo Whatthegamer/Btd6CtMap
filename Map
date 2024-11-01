@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Hexagonal Map</title>
+    <style>
+        .hex-grid {
+            display: flex;
+            flex-wrap: wrap;
+            width: 300px;
+        }
+        .hex {
+            width: 50px;
+            height: 50px;
+            background-color: lightblue;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            margin: 2px;
+            cursor: pointer;
+        }
+        .claimed {
+            background-color: lightgreen;
+        }
+    </style>
+</head>
+<body>
+    <div class="hex-grid" id="hexGrid">
+        <!-- Generate 50 hexagons -->
+        <script>
+            for (let i = 0; i < 50; i++) {
+                document.write('<div class="hex" onclick="claimHex(this)"></div>');
+            }
+        </script>
+    </div>
+    <script>
+        let claims = 0;
+        const maxClaims = 4;
+
+        function claimHex(hex) {
+            if (claims < maxClaims && !hex.classList.contains('claimed')) {
+                hex.classList.add('claimed');
+                claims++;
+            } else if (claims >= maxClaims) {
+                alert('You have reached the maximum number of claims for today.');
+            }
+        }
+    </script>
+</body>
+</html>
