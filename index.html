@@ -8,8 +8,13 @@
         .hex-grid {
             display: flex;
             flex-wrap: wrap;
-            width: 750px; /* Adjust based on the number of hexagons and their size */
+            justify-content: center;
+            width: 100%;
             margin: auto;
+        }
+        .hex-row {
+            display: flex;
+            justify-content: center;
         }
         .hex {
             width: 50px;
@@ -93,11 +98,13 @@
         function generateHexGrid() {
             let id = 1;
             for (let row = 0; row < gridSize; row++) {
-                for (let col = 0; col < gridSize; col++) {
-                    if (Math.abs(row - col) < gridSize / 2) {
-                        hexGrid.appendChild(createHex(id++));
-                    }
+                const hexRow = document.createElement('div');
+                hexRow.className = 'hex-row';
+                const offset = Math.abs(row - Math.floor(gridSize / 2));
+                for (let col = 0; col < gridSize - offset; col++) {
+                    hexRow.appendChild(createHex(id++));
                 }
+                hexGrid.appendChild(hexRow);
             }
         }
 
