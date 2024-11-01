@@ -50,17 +50,23 @@
         .hex:hover .tooltip {
             visibility: visible;
         }
+        .draggable {
+            cursor: move;
+        }
     </style>
 </head>
 <body>
     <div class="hex-grid" id="hexGrid">
         <!-- Hexagons will be generated here by JavaScript -->
     </div>
+    <button id="adminButton">Admin Permissions</button>
     <script>
         const hexGrid = document.getElementById('hexGrid');
+        const adminButton = document.getElementById('adminButton');
         const gridSize = 7;
         let claims = 0;
         const maxClaims = 4;
+        let adminMode = false;
 
         function createHex(id) {
             const hex = document.createElement('div');
@@ -109,6 +115,58 @@
                 hexGrid.appendChild(hexRow);
             }
         }
+
+        function enableAdminMode() {
+            const hexes = document.querySelectorAll('.hex');
+            hexes.forEach(hex => {
+                hex.classList.add('draggable');
+                hex.setAttribute('draggable', true);
+                hex.ondragstart = dragStart;
+                hex.ondragover = dragOver;
+                hex.ondrop = drop;
+            });
+        }
+
+        function disableAdminMode() {
+            const hexes = document.querySelectorAll('.hex');
+            hexes.forEach(hex => {
+                hex.classList.remove('draggable');
+                hex.removeAttribute('draggable');
+                hex.ondragstart = null;
+                hex.ondragover = null;
+                hex.ondrop = null;
+            });
+        }
+
+        function dragStart(event) {
+            event.dataTransfer.setData('text/plain', event.target.id);
+        }
+
+        function dragOver(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const id = event.dataTransfer.getData('text');
+            const draggableElement = document.getElementById(id);
+            const dropzone = event.target;
+            hexGrid.insertBefore(draggableElement, dropzone);
+        }
+
+        adminButton.addEventListener('click', () => {
+            const password = prompt('Enter admin password:');
+            if (password === 'RelicsForever') {
+                adminMode = !adminMode;
+                if (adminMode) {
+                    enableAdminMode();
+                } else {
+                    disableAdminMode();
+                }
+            } else {
+                alert('Incorrect password.');
+            }
+        });
 
         generateHexGrid();
     </script>
