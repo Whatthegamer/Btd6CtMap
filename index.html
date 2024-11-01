@@ -21,7 +21,8 @@
             height: 50px;
             background-color: lightgreen;
             clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-            margin: 2px;
+            margin: -1px; /* Adjust to remove gaps between hexagons */
+            border: 1px solid black;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -57,7 +58,7 @@
     </div>
     <script>
         const hexGrid = document.getElementById('hexGrid');
-        const gridSize = 15;
+        const gridSize = 7;
         let claims = 0;
         const maxClaims = 4;
 
@@ -97,11 +98,12 @@
 
         function generateHexGrid() {
             let id = 1;
-            for (let row = 0; row < gridSize; row++) {
+            for (let row = -gridSize + 1; row < gridSize; row++) {
                 const hexRow = document.createElement('div');
                 hexRow.className = 'hex-row';
-                const offset = Math.abs(row - Math.floor(gridSize / 2));
-                for (let col = 0; col < gridSize - offset; col++) {
+                const start = Math.max(-gridSize + 1, -row - gridSize + 1);
+                const end = Math.min(gridSize - 1, -row + gridSize - 1);
+                for (let col = start; col <= end; col++) {
                     hexRow.appendChild(createHex(id++));
                 }
                 hexGrid.appendChild(hexRow);
