@@ -3,47 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Hexagonal Map</title>
+    <title>BTD6 Contested Territory Map</title>
     <style>
         .hex-grid {
             display: flex;
             flex-wrap: wrap;
-            width: 300px;
+            width: 750px; /* Adjust based on the number of hexagons and their size */
+            margin: auto;
         }
         .hex {
             width: 50px;
             height: 50px;
-            background-color: lightblue;
+            background-color: lightgreen;
             clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
             margin: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
             cursor: pointer;
+            position: relative;
         }
         .claimed {
-            background-color: lightgreen;
+            background-color: lightblue;
+        }
+        .tooltip {
+            visibility: hidden;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position above the hexagon */
+            left: 50%;
+            margin-left: -60px;
+            width: 120px;
+        }
+        .hex:hover .tooltip {
+            visibility: visible;
         }
     </style>
 </head>
 <body>
     <div class="hex-grid" id="hexGrid">
-        <!-- Generate 50 hexagons -->
-        <script>
-            for (let i = 0; i < 50; i++) {
-                document.write('<div class="hex" onclick="claimHex(this)"></div>');
-            }
-        </script>
+        <!-- Hexagons will be generated here by JavaScript -->
     </div>
     <script>
+        const hexGrid = document.getElementById('hexGrid');
+        const gridSize = 15;
         let claims = 0;
         const maxClaims = 4;
 
-        function claimHex(hex) {
-            if (claims < maxClaims && !hex.classList.contains('claimed')) {
-                hex.classList.add('claimed');
-                claims++;
-            } else if (claims >= maxClaims) {
-                alert('You have reached the maximum number of claims for today.');
+        function createHex(id) {
+            const hex = document.createElement('div');
+            hex.className = 'hex';
+            hex.textContent = id;
+            hex.onclick = () => claimHex(hex, id);
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            hex.appendChild(tooltip);
+            return hex;
+        }
+
+        function claimHex(hex, id) {
+            if (!hex.classList.contains('claimed')) {
+                if (claims < maxClaims) {
+                    const playerName = prompt('Enter your name:');
+                    if (playerName) {
+                        hex.classList.add('claimed');
+                        hex.dataset.player = playerName;
+                        hex.querySelector('.tooltip').textContent = `Claimed by: ${playerName}`;
+                        claims++;
+                    }
+                } else {
+                    alert('You have reached the maximum number of claims for today.');
+                }
+            } else {
+                const playerName = hex.dataset.player;
+                if (confirm(`Do you want to unclaim this tile claimed by ${playerName}?`)) {
+                    hex.classList.remove('claimed');
+                    hex.querySelector('.tooltip').textContent = '';
+                    claims--;
+                }
             }
         }
+
+        function generateHexGrid() {
+            let id = 1;
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    if (Math.abs(row - col) < gridSize / 2) {
+                        hexGrid.appendChild(createHex(id++));
+                    }
+                }
+            }
+        }
+
+        generateHexGrid();
     </script>
 </body>
 </html>
