@@ -50,6 +50,9 @@
         .hidden {
             display: none;
         }
+        .claimed {
+            background-color: red;
+        }
     </style>
 </head>
 <body>
@@ -104,6 +107,11 @@
             hexes.forEach(hex => {
                 hex.addEventListener('click', claimTile);
             });
+
+            const bannersAndRelics = document.querySelectorAll('.banner, .relic');
+            bannersAndRelics.forEach(tile => {
+                tile.addEventListener('click', removeTile);
+            });
         }
 
         function addTile(type) {
@@ -115,6 +123,7 @@
             newTile.addEventListener('dragstart', dragStart);
             newTile.addEventListener('dragover', dragOver);
             newTile.addEventListener('drop', drop);
+            newTile.addEventListener('click', removeTile);
             hexGrid.appendChild(newTile);
         }
 
@@ -146,6 +155,13 @@
                 } else {
                     alert("You can only claim up to 4 tiles per day.");
                 }
+            }
+        }
+
+        function removeTile(event) {
+            const tile = event.target;
+            if (tile.classList.contains('banner') || tile.classList.contains('relic')) {
+                tile.remove();
             }
         }
 
