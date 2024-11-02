@@ -57,10 +57,11 @@
         .draggable {
             cursor: move;
         }
-        .chest, .banner {
+        .chest {
             width: 30px;
             height: 30px;
-            background-color: gold; /* Example color for chest */
+            background-image: url('chest.png'); /* URL to chest image */
+            background-size: cover;
             clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
             margin: -1px;
             border: 1px solid black;
@@ -72,7 +73,19 @@
             position: relative;
         }
         .banner {
-            background-color: red; /* Example color for banner */
+            width: 30px;
+            height: 30px;
+            background-image: url('banner.png'); /* URL to banner image */
+            background-size: cover;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            margin: -1px;
+            border: 1px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            position: relative;
         }
     </style>
 </head>
@@ -83,13 +96,11 @@
     <button id="adminButton">Admin Permissions</button>
     <button id="addChestButton" style="display:none;">Add Chest</button>
     <button id="addBannerButton" style="display:none;">Add Banner</button>
-    <button id="saveButton" style="display:none;">Save Tiles</button>
     <script>
         const hexGrid = document.getElementById('hexGrid');
         const adminButton = document.getElementById('adminButton');
         const addChestButton = document.getElementById('addChestButton');
         const addBannerButton = document.getElementById('addBannerButton');
-        const saveButton = document.getElementById('saveButton');
         const gridSize = 7;
         let claims = 0;
         const maxClaims = 4;
@@ -154,7 +165,6 @@
             });
             addChestButton.style.display = 'inline';
             addBannerButton.style.display = 'inline';
-            saveButton.style.display = 'inline';
         }
 
         function disableAdminMode() {
@@ -168,7 +178,6 @@
             });
             addChestButton.style.display = 'none';
             addBannerButton.style.display = 'none';
-            saveButton.style.display = 'none';
         }
 
         function dragStart(event) {
@@ -196,33 +205,6 @@
             hexGrid.appendChild(tile);
         }
 
-        function saveTiles() {
-            const tiles = [];
-            document.querySelectorAll('.hex, .chest, .banner').forEach(tile => {
-                const id = tile.textContent.trim();
-                const x = tile.offsetLeft;
-                const y = tile.offsetTop;
-                const type = tile.className.split(' ')[0];
-                const claimed_by = tile.dataset.player || '';
-                tiles.push({ id, x, y, type, claimed_by });
-            });
-
-            fetch('/save_tiles', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ tiles })
-            }).then(response => response.json())
-              .then(data => {
-                  if (data.success) {
-                      alert('Tiles saved successfully!');
-                  } else {
-                      alert('Failed to save tiles.');
-                  }
-              });
-        }
-
         adminButton.addEventListener('click', () => {
             const password = prompt('Enter admin password:');
             if (password === 'RelicsForever') {
@@ -238,4 +220,9 @@
         });
 
         addChestButton.addEventListener('click', () => addTile('chest'));
-        addBannerButton.addEventListener
+        addBannerButton.addEventListener('click', () => addTile('banner'));
+
+        generateHexGrid();
+    </script>
+</body>
+</html>
