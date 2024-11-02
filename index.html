@@ -7,6 +7,7 @@
     <style>
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -18,7 +19,7 @@
             flex-wrap: wrap;
             width: 600px;
         }
-        .hex {
+        .hex, .banner, .relic {
             position: relative;
             width: 100px;
             height: 57.74px;
@@ -31,9 +32,23 @@
             align-items: center;
             color: white;
             font-weight: bold;
+            cursor: move;
+        }
+        .banner, .relic {
+            width: 80px;
+            height: 46.19px;
         }
         .hex:nth-child(odd) {
             margin-left: 50px;
+        }
+        .admin-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -46,5 +61,63 @@
             }
         </script>
     </div>
+    <button class="admin-button" onclick="requestAdminPrivileges()">Admin Privileges</button>
+
+    <script>
+        function requestAdminPrivileges() {
+            const password = prompt("Enter the admin password:");
+            if (password === "RelicsForever") {
+                enableAdminMode();
+            } else {
+                alert("Incorrect password!");
+            }
+        }
+
+        function enableAdminMode() {
+            const hexGrid = document.querySelector('.hex-grid');
+            hexGrid.addEventListener('click', addTile);
+
+            const hexes = document.querySelectorAll('.hex');
+            hexes.forEach(hex => {
+                hex.setAttribute('draggable', true);
+                hex.addEventListener('dragstart', dragStart);
+                hex.addEventListener('dragover', dragOver);
+                hex.addEventListener('drop', drop);
+            });
+        }
+
+        function addTile(event) {
+            if (event.target.classList.contains('hex-grid')) {
+                const newTileType = prompt("Enter tile type (Banner/Relic):");
+                if (newTileType === "Banner" || newTileType === "Relic") {
+                    const newTile = document.createElement('div');
+                    newTile.className = newTileType.toLowerCase();
+                    newTile.textContent = newTileType;
+                    newTile.setAttribute('draggable', true);
+                    newTile.addEventListener('dragstart', dragStart);
+                    newTile.addEventListener('dragover', dragOver);
+                    newTile.addEventListener('drop', drop);
+                    hexGrid.appendChild(newTile);
+                } else {
+                    alert("Invalid tile type!");
+                }
+            }
+        }
+
+        function dragStart(event) {
+            event.dataTransfer.setData('text/plain', event.target.className);
+        }
+
+        function dragOver(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const className = event.dataTransfer.getData('text/plain');
+            const draggedElement = document.querySelector(`.${className}`);
+            event.target.before(draggedElement);
+        }
+    </script>
 </body>
 </html>
