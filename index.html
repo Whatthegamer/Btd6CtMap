@@ -3,226 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTD6 Contested Territory Map</title>
+    <title>Hexagonal Grid</title>
     <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
         .hex-grid {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
-            width: 100%;
-            margin: auto;
-        }
-        .hex-row {
-            display: flex;
-            justify-content: center;
+            width: 600px;
         }
         .hex {
-            width: 50px;
-            height: 50px;
-            background-color: #006400; /* Darker green */
-            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-            margin: -1px; /* Adjust to remove gaps between hexagons */
-            border: 1px solid black;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            cursor: pointer;
             position: relative;
-            transform: rotate(30deg); /* Rotate hexagons 30 degrees */
-        }
-        .hex span {
-            transform: rotate(-30deg); /* Rotate numbers back */
-        }
-        .claimed {
-            background-color: lightblue;
-        }
-        .tooltip {
-            visibility: hidden;
-            background-color: black;
-            color: #fff;
-            text-align: center;
-            border-radius: 5px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%; /* Position above the hexagon */
-            left: 50%;
-            margin-left: -60px;
-            width: 120px;
-        }
-        .hex:hover .tooltip {
-            visibility: visible;
-        }
-        .draggable {
-            cursor: move;
-        }
-        .chest {
-            width: 30px;
-            height: 30px;
-            background-image: url('chest.png'); /* URL to chest image */
-            background-size: cover;
-            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-            margin: -1px;
-            border: 1px solid black;
+            width: 100px;
+            height: 57.74px;
+            background-color: green;
+            margin: 28.87px 0;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            border: 2px solid black;
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 12px;
-            cursor: pointer;
-            position: relative;
+            align-items: center;
+            color: white;
+            font-weight: bold;
         }
-        .banner {
-            width: 30px;
-            height: 30px;
-            background-image: url('banner.png'); /* URL to banner image */
-            background-size: cover;
-            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-            margin: -1px;
-            border: 1px solid black;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            cursor: pointer;
-            position: relative;
+        .hex:nth-child(odd) {
+            margin-left: 50px;
         }
     </style>
 </head>
 <body>
-    <div class="hex-grid" id="hexGrid">
-        <!-- Hexagons will be generated here by JavaScript -->
+    <div class="hex-grid">
+        <!-- Generate 127 hexagons -->
+        <script>
+            for (let i = 1; i <= 127; i++) {
+                document.write(`<div class="hex">${i}</div>`);
+            }
+        </script>
     </div>
-    <button id="adminButton">Admin Permissions</button>
-    <button id="addChestButton" style="display:none;">Add Chest</button>
-    <button id="addBannerButton" style="display:none;">Add Banner</button>
-    <script>
-        const hexGrid = document.getElementById('hexGrid');
-        const adminButton = document.getElementById('adminButton');
-        const addChestButton = document.getElementById('addChestButton');
-        const addBannerButton = document.getElementById('addBannerButton');
-        const gridSize = 7;
-        let claims = 0;
-        const maxClaims = 4;
-        let adminMode = false;
-
-        function createHex(id) {
-            const hex = document.createElement('div');
-            hex.className = 'hex';
-            hex.innerHTML = `<span>${id}</span>`;
-            hex.onclick = () => claimHex(hex, id);
-            const tooltip = document.createElement('div');
-            tooltip.className = 'tooltip';
-            hex.appendChild(tooltip);
-            return hex;
-        }
-
-        function claimHex(hex, id) {
-            if (!hex.classList.contains('claimed')) {
-                if (claims < maxClaims) {
-                    const playerName = prompt('Enter your name:');
-                    if (playerName) {
-                        hex.classList.add('claimed');
-                        hex.dataset.player = playerName;
-                        hex.querySelector('.tooltip').textContent = `Claimed by: ${playerName}`;
-                        claims++;
-                    }
-                } else {
-                    alert('You have reached the maximum number of claims for today.');
-                }
-            } else {
-                const playerName = hex.dataset.player;
-                if (confirm(`Do you want to unclaim this tile claimed by ${playerName}?`)) {
-                    hex.classList.remove('claimed');
-                    hex.querySelector('.tooltip').textContent = '';
-                    claims--;
-                }
-            }
-        }
-
-        function generateHexGrid() {
-            let id = 1;
-            for (let row = -gridSize + 1; row < gridSize; row++) {
-                const hexRow = document.createElement('div');
-                hexRow.className = 'hex-row';
-                const start = Math.max(-gridSize + 1, -row - gridSize + 1);
-                const end = Math.min(gridSize - 1, -row + gridSize - 1);
-                for (let col = start; col <= end; col++) {
-                    hexRow.appendChild(createHex(id++));
-                }
-                hexGrid.appendChild(hexRow);
-            }
-        }
-
-        function enableAdminMode() {
-            const hexes = document.querySelectorAll('.hex');
-            hexes.forEach(hex => {
-                hex.classList.add('draggable');
-                hex.setAttribute('draggable', true);
-                hex.ondragstart = dragStart;
-                hex.ondragover = dragOver;
-                hex.ondrop = drop;
-            });
-            addChestButton.style.display = 'inline';
-            addBannerButton.style.display = 'inline';
-        }
-
-        function disableAdminMode() {
-            const hexes = document.querySelectorAll('.hex');
-            hexes.forEach(hex => {
-                hex.classList.remove('draggable');
-                hex.removeAttribute('draggable');
-                hex.ondragstart = null;
-                hex.ondragover = null;
-                hex.ondrop = null;
-            });
-            addChestButton.style.display = 'none';
-            addBannerButton.style.display = 'none';
-        }
-
-        function dragStart(event) {
-            event.dataTransfer.setData('text/plain', event.target.id);
-        }
-
-        function dragOver(event) {
-            event.preventDefault();
-        }
-
-        function drop(event) {
-            event.preventDefault();
-            const id = event.dataTransfer.getData('text');
-            const draggableElement = document.getElementById(id);
-            const dropzone = event.target;
-            hexGrid.insertBefore(draggableElement, dropzone);
-        }
-
-        function addTile(type) {
-            const tile = document.createElement('div');
-            tile.className = type;
-            tile.innerHTML = `<span>${type === 'chest' ? 'C' : 'B'}</span>`;
-            tile.setAttribute('draggable', true);
-            tile.ondragstart = dragStart;
-            hexGrid.appendChild(tile);
-        }
-
-        adminButton.addEventListener('click', () => {
-            const password = prompt('Enter admin password:');
-            if (password === 'RelicsForever') {
-                adminMode = !adminMode;
-                if (adminMode) {
-                    enableAdminMode();
-                } else {
-                    disableAdminMode();
-                }
-            } else {
-                alert('Incorrect password.');
-            }
-        });
-
-        addChestButton.addEventListener('click', () => addTile('chest'));
-        addBannerButton.addEventListener('click', () => addTile('banner'));
-
-        generateHexGrid();
-    </script>
 </body>
 </html>
