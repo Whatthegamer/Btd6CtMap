@@ -53,6 +53,18 @@
         .claimed {
             background-color: red;
         }
+        .hex:hover::after {
+            content: attr(data-claimed-by);
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: black;
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -89,6 +101,7 @@
     <script>
         let claimedTiles = {};
         let claimCount = 0;
+        const ipClaims = {};
 
         function requestAdminPrivileges() {
             const password = prompt("Enter the admin password:");
@@ -131,23 +144,24 @@
             const tile = event.target;
             const tileId = tile.textContent;
             const userName = prompt("Enter your name to claim this tile:");
+            const userIp = getUserIp();
 
-            if (userName) {
-                if (!claimedTiles[userName]) {
-                    claimedTiles[userName] = [];
+            if (userName && userIp) {
+                if (!ipClaims[userIp]) {
+                    ipClaims[userIp] = [];
                 }
 
-                if (claimedTiles[userName].length < 4) {
+                if (ipClaims[userIp].length < 4) {
                     if (!tile.classList.contains('claimed')) {
                         tile.classList.add('claimed');
                         tile.dataset.claimedBy = userName;
-                        claimedTiles[userName].push(tileId);
+                        ipClaims[userIp].push(tileId);
                         claimCount++;
-                        tile.textContent = `${tileId} (${userName})`;
+                        tile.textContent = tileId;
                     } else if (tile.dataset.claimedBy === userName) {
                         tile.classList.remove('claimed');
                         tile.textContent = tileId;
-                        claimedTiles[userName] = claimedTiles[userName].filter(id => id !== tileId);
+                        ipClaims[userIp] = ipClaims[userIp].filter(id => id !== tileId);
                         claimCount--;
                     } else {
                         alert("This tile is already claimed by someone else.");
@@ -162,23 +176,29 @@
             const tile = event.target;
             if (tile.classList.contains('banner') || tile.classList.contains('relic')) {
                 tile.remove();
+            } else if (tile.classList.contains('claimed')) {
+                const userIp = getUserIp();
+                const tileId = tile.textContent;
+                if (tile.dataset.claimedBy === userIp || isAdmin()) {
+                    tile.classList.remove('claimed');
+                    tile.textContent = tileId;
+                    ipClaims[userIp] = ipClaims[userIp].filter(id => id !== tileId);
+                    claimCount--;
+                } else {
+                    alert("You can only remove your own claims.");
+                }
             }
         }
 
+        function getUserIp() {
+            // Placeholder function to simulate getting the user's IP address
+            return '192.168.1.1';
+        }
+
+        function isAdmin() {
+            // Placeholder function to simulate admin check
+            return true;
+        }
+
         function dragStart(event) {
-            event.dataTransfer.setData('text/plain', event.target.className);
-        }
-
-        function dragOver(event) {
-            event.preventDefault();
-        }
-
-        function drop(event) {
-            event.preventDefault();
-            const className = event.dataTransfer.getData('text/plain');
-            const draggedElement = document.querySelector(`.${className}`);
-            event.target.before(draggedElement);
-        }
-    </script>
-</body>
-</html>
+            event.dataTransfer.setData('text/plain', event
