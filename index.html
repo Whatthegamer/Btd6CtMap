@@ -202,3 +202,20 @@
 
         function dragStart(event) {
             event.dataTransfer.setData('text/plain', event
+            function dragStart(event) {
+            event.dataTransfer.setData('text/plain', event.target.className);
+        }
+
+        function dragOver(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const className = event.dataTransfer.getData('text/plain');
+            const draggedElement = document.querySelector(`.${className}`);
+            event.target.before(draggedElement);
+        }
+    </script>
+</body>
+</html>
